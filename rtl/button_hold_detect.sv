@@ -8,13 +8,12 @@ module button_hold_detect #(
     output logic held
 );
 
-  localparam int CountMax = HOLD_CYCLES - 1;
+  localparam int CountMax = HOLD_CYCLES;
   localparam int CountWidth = $clog2(CountMax + 1);
 
   logic count_rst;
   logic count_enable;
   logic [CountWidth-1:0] count;
-
 
   mod_n_counter #(
       .N(CountMax + 1),
@@ -26,11 +25,12 @@ module button_hold_detect #(
       .count(count)
   );
 
-
-  assign count_rst    = !button;
-  assign count_enable = button && !held;
-
+  // Synchronous reset when button is released
+  assign count_rst = ~button;
 
   assign held = (count == CountWidth'(CountMax));
 
+  assign count_enable = button && !held;
+
 endmodule
+
