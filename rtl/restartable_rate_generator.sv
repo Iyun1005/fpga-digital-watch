@@ -18,29 +18,31 @@ module restartable_rate_generator #(
   assign tick = running && tick_qualifier;
 
   // generation
-  if (CYCLE_COUNT == 1) begin : g_special
-    assign tick_qualifier = 1'b1;
-  end else begin : g_general
+  generate
+    if (CYCLE_COUNT == 1) begin : g_special
+      assign tick_qualifier = 1'b1;
+    end else begin : g_general
 
-    localparam int CountWidth = $clog2(CYCLE_COUNT);
+      localparam int CountWidth = $clog2(CYCLE_COUNT);
 
-    logic rst_count;
-    logic enable_count;
-    logic [CountWidth-1:0] count;
+      logic rst_count;
+      logic enable_count;
+      logic [CountWidth-1:0] count;
 
-    mod_n_counter #(
-        .N(CYCLE_COUNT),
-        .WIDTH(CountWidth)
-    ) u_count (
-        .clk(clk),
-        .rst(rst_count),
-        .enable(enable_count),
-        .count(count)
-    );
+      mod_n_counter #(
+          .N(CYCLE_COUNT),
+          .WIDTH(CountWidth)
+      ) u_count (
+          .clk(clk),
+          .rst(rst_count),
+          .enable(enable_count),
+          .count(count)
+      );
 
-    assign rst_count = ~run;
-    assign enable_count = run;
+      assign rst_count = ~run;
+      assign enable_count = run;
 
-    assign tick_qualifier = (count == CountWidth'(CYCLE_COUNT - 1));
-  end
+      assign tick_qualifier = (count == CountWidth'(CYCLE_COUNT - 1));
+    end
+  endgenerate
 endmodule
